@@ -191,7 +191,8 @@
 			});
 		}
 
-		function getStories() {
+		async function getStories() {
+			if (window.newsFirebase.enabled) return await window.newsFirebase.loadStories();
 			return JSON.parse(localStorage.getItem('newsStories') || '[]');
 		}
 
@@ -199,10 +200,10 @@
 			return `${title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now()}`;
 		}
 
-		function renderStoryManager() {
+		async function renderStoryManager() {
 			const storyList = document.getElementById('story-list');
 			storyList.textContent = '';
-			const stories = getStories();
+			const stories = await getStories();
 			if (!stories.length) {
 				const empty = document.createElement('p');
 				empty.className = 'no-stories';
@@ -267,15 +268,18 @@
 			document.getElementById('accounts-status').textContent = 'Login information saved.';
 		});
 
-		document.getElementById('story-list').addEventListener('click', (event) => {
+		document.getElementById('story-list').addEventListener('click', async (event) => {
 			const button = event.target.closest('button');
 			if (!button) return;
 			const index = Number(button.dataset.index);
-			const stories = getStories();
+			const stories = await getStories();
 			if (button.dataset.action === 'delete') {
 				if (!window.confirm('Delete this submitted story?')) return;
-				stories.splice(index, 1);
-				localStorage.setItem('newsStories', JSON.stringify(stories));
+				if (window.newsFirebase.enabled) await window.newsFirebase.deleteStory(stories[index].id);
+				else {
+					stories.splice(index, 1);
+					localStorage.setItem('newsStories', JSON.stringify(stories));
+				}
 				document.getElementById('manage-status').textContent = 'Story deleted.';
 				renderStoryManager();
 			}
@@ -297,7 +301,7 @@
 			event.preventDefault();
 			const imageFile = document.getElementById('article-image').files[0];
 			const status = document.getElementById('article-status');
-			const stories = getStories();
+			const stories = await getStories();
 			if (editingIndex === null && (!imageFile || !imageFile.type.startsWith('image/'))) {
 				status.textContent = 'Please choose an image file.';
 				return;
@@ -311,7 +315,7 @@
 						body: document.getElementById('article-body').value,
 						category: document.getElementById('article-category').value,
 						author: document.getElementById('article-author').value,
-						date: 'Just now',
+						date: existingStory?.date || new Date().toISOString(),
 					}, imageFile, existingStory?.id, existingStory?.image);
 					if (editingIndex === null) stories.push(remoteStory);
 					else stories[editingIndex] = remoteStory;
@@ -337,7 +341,7 @@
 					body: document.getElementById('article-body').value,
 					category: document.getElementById('article-category').value,
 					author: document.getElementById('article-author').value,
-					date: 'Just now',
+					date: stories[editingIndex]?.date || new Date().toISOString(),
 				};
 				if (image) story.image = image;
 				if (editingIndex === null) stories.push(story);
@@ -358,8 +362,8 @@
 				saveStory(stories[editingIndex].image);
 			}
 		});
-		document.getElementById('download-news-button').addEventListener('click', () => {
-			const file = new Blob([JSON.stringify(getStories(), null, 2)], { type: 'application/json' });
+		document.getElementById('download-news-button').addEventListener('click', async () => {
+			const file = new Blob([JSON.stringify(await getStories(), null, 2)], { type: 'application/json' });
 			const link = document.createElement('a');
 			link.href = URL.createObjectURL(file);
 			link.download = 'news.json';
