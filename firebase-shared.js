@@ -3,17 +3,23 @@
 	const configured = config.apiKey && !config.apiKey.startsWith('PASTE_') && window.firebase;
 	let database = null;
 	let storage = null;
+	let initializationError = null;
 
 	if (configured) {
-		firebase.initializeApp(config);
-		database = firebase.firestore();
-		storage = firebase.storage();
+		try {
+			firebase.initializeApp(config);
+			database = firebase.firestore();
+			storage = firebase.storage();
+		} catch (error) {
+			initializationError = error;
+		}
 	}
 
 	window.newsFirebase = {
-		enabled: Boolean(configured),
+		enabled: Boolean(database),
+		initializationError,
 		async loadStories() {
-			if (!database) return null;
+			if (!database) return [];
 			const snapshot = await database.collection('stories').orderBy('createdAt', 'desc').get();
 			return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 		},
