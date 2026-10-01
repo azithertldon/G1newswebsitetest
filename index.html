@@ -143,7 +143,8 @@
 		.view-all:hover { color: var(--coral); }
 		.article-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; margin-top: 24px; }
 		.article-card { display: flex; height: 100%; flex-direction: column; overflow: hidden; background: var(--white); border: 1px solid var(--line); border-top: 5px solid var(--coral); box-shadow: 5px 5px 0 rgba(23, 23, 23, 0.12); transition: transform 180ms ease, box-shadow 180ms ease; }
-		.article-card img { height: 190px; filter: saturate(0.92) contrast(1.03); }
+		.card-image-frame { height: 190px; overflow: hidden; background: var(--paper); }
+		.card-image-frame img { height: 100%; filter: saturate(0.92) contrast(1.03); }
 		.article-card-content { display: flex; flex: 1; flex-direction: column; padding: 22px; }
 		.article-card h3 { margin: 10px 0; font-size: 1.35rem; }
 		.article-card p { margin: 0 0 18px; color: var(--muted); font-size: 0.9rem; }
@@ -297,6 +298,9 @@
 			imageElement.style.transform = `scale(${article.imageZoom || 1})`;
 			imageElement.style.transformOrigin = article.imagePosition || '50% 50%';
 			imageElement.style.backgroundColor = article.imageFit === 'cover' ? 'transparent' : 'var(--paper)';
+			const imageFrame = document.createElement('div');
+			imageFrame.className = 'card-image-frame';
+			imageFrame.append(imageElement);
 			const content = document.createElement('div');
 			content.className = 'article-card-content';
 			const categoryElement = document.createElement('span');
@@ -314,7 +318,7 @@
 			timeElement.textContent = formatStoryDate(article.date === 'Just now' ? article.createdAt : article.date || article.createdAt);
 			meta.append(authorElement, timeElement);
 			content.append(categoryElement, titleElement, summaryElement, meta);
-			card.append(imageElement, content);
+			card.append(imageFrame, content);
 			const link = document.createElement('a');
 			link.className = 'article-link';
 			link.href = `#article=${encodeURIComponent(article.id || article.title)}`;
