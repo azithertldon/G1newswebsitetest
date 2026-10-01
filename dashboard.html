@@ -62,6 +62,14 @@
 		.submit-button { padding: 12px 16px; color: var(--white); background: var(--red); border: 0; border-radius: 2px; font-weight: 800; }
 		.submit-button:hover { background: var(--red-dark); }
 		.status { min-height: 24px; margin: 0; color: var(--red-dark); font-size: 0.85rem; font-weight: 700; }
+		.publish-success { display: none; position: fixed; z-index: 20; inset: 0; padding: 20px; background: rgba(23, 23, 23, 0.72); place-items: center; }
+		.publish-success.open { display: grid; }
+		.publish-success-card { position: relative; width: min(440px, 100%); padding: 30px; background: var(--paper); border: 3px solid var(--red); box-shadow: 8px 8px 0 var(--yellow); text-align: center; }
+		.publish-success-card img { width: 100%; max-height: 220px; margin-bottom: 18px; object-fit: cover; }
+		.publish-success-card h2 { margin: 0 0 8px; font-size: 2rem; }
+		.publish-success-card p { margin: 0 0 20px; color: var(--muted); }
+		.success-mark { display: grid; width: 42px; height: 42px; margin: 0 auto 14px; color: var(--white); background: var(--red); border-radius: 50%; place-items: center; font-size: 1.5rem; font-weight: 800; }
+		.close-success { padding: 10px 16px; color: var(--white); background: var(--red); border: 0; border-radius: 2px; font-weight: 800; }
 		.hidden { display: none; }
 		@media (max-width: 700px) { header { align-items: flex-start; flex-direction: column; } .role-grid, .management-grid { grid-template-columns: 1fr; } .story-row { grid-template-columns: 70px 1fr; } .story-row img { width: 70px; height: 56px; } .story-actions { grid-column: 1 / -1; } }
 	</style>
@@ -131,6 +139,15 @@
 			<p class="status" id="download-status" role="status"></p>
 		</section>
 	</main>
+	<div class="publish-success" id="publish-success" role="dialog" aria-modal="true" aria-labelledby="publish-success-title">
+		<div class="publish-success-card">
+			<img src="johari-impressed.jpg" alt="Johari impressed" onerror="this.style.display='none'" />
+			<div class="success-mark">✓</div>
+			<h2 id="publish-success-title">Thank you for publishing!</h2>
+			<p>Your story has been saved and is ready for readers.</p>
+			<button class="close-success" id="close-publish-success" type="button">Back to dashboard</button>
+		</div>
+	</div>
 	<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 	<script src="firebase-config.js"></script>
@@ -173,6 +190,11 @@
 		document.getElementById('dashboard-intro').textContent = settings.intro;
 		document.getElementById('role-notice').textContent = settings.notice;
 		document.querySelector(`[data-card="${role}"]`).classList.add('active');
+		const publishSuccess = document.getElementById('publish-success');
+		function showPublishSuccess() {
+			publishSuccess.classList.add('open');
+		}
+		document.getElementById('close-publish-success').addEventListener('click', () => publishSuccess.classList.remove('open'));
 		if (role === 'administrator') document.getElementById('admin-panel').classList.remove('hidden');
 		if (role === 'administrator' || role === 'chief-director') document.getElementById('story-management').classList.remove('hidden');
 
@@ -324,6 +346,7 @@
 					else stories[editingIndex] = remoteStory;
 					localStorage.setItem('newsStories', JSON.stringify(stories));
 					status.textContent = 'Story published for every device.';
+					showPublishSuccess();
 					editingIndex = null;
 					document.getElementById('article-image').required = true;
 					document.getElementById('article-submit').textContent = 'Publish story';
@@ -352,6 +375,7 @@
 				else stories[editingIndex] = { ...stories[editingIndex], ...story };
 				localStorage.setItem('newsStories', JSON.stringify(stories));
 				status.textContent = editingIndex === null ? 'Story saved. Open the website to view it.' : 'Story changes saved.';
+				showPublishSuccess();
 				editingIndex = null;
 				document.getElementById('article-image').required = true;
 				document.getElementById('article-submit').textContent = 'Publish story';
