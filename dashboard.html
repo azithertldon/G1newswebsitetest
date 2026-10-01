@@ -145,6 +145,7 @@
 					<label>Image fitting <select id="article-image-fit"><option value="contain">Show full image (no crop)</option><option value="cover">Fill card (crop edges)</option></select></label>
 					<label>Horizontal focus <span class="range-row"><input id="article-image-x" type="range" min="0" max="100" value="50" /><output id="article-image-x-value">50%</output></span></label>
 					<label>Vertical focus <span class="range-row"><input id="article-image-y" type="range" min="0" max="100" value="50" /><output id="article-image-y-value">50%</output></span></label>
+					<label>Image zoom <span class="range-row"><input id="article-image-zoom" type="range" min="100" max="300" step="5" value="100" /><output id="article-image-zoom-value">100%</output></span></label>
 				</div>
 				<button class="submit-button" id="article-submit" type="submit">Publish story</button>
 				<p class="status" id="article-status" role="status"></p>
@@ -200,17 +201,22 @@
 			const fit = document.getElementById('article-image-fit').value;
 			const x = document.getElementById('article-image-x').value;
 			const y = document.getElementById('article-image-y').value;
+			const zoom = document.getElementById('article-image-zoom').value;
 			const preview = document.getElementById('image-preview-image');
 			preview.style.objectFit = fit;
 			preview.style.objectPosition = `${x}% ${y}%`;
+			preview.style.transform = `scale(${zoom / 100})`;
+			preview.style.transformOrigin = `${x}% ${y}%`;
 			document.getElementById('article-image-x-value').textContent = `${x}%`;
 			document.getElementById('article-image-y-value').textContent = `${y}%`;
+			document.getElementById('article-image-zoom-value').textContent = `${zoom}%`;
 		}
 
-		function restoreImagePosition(value) {
+		function restoreImagePosition(value, zoom) {
 			const matches = value?.match(/(\d+)\s*%\s+(\d+)\s*%/);
 			document.getElementById('article-image-x').value = matches ? matches[1] : 50;
 			document.getElementById('article-image-y').value = matches ? matches[2] : 50;
+			document.getElementById('article-image-zoom').value = Math.round((zoom || 1) * 100);
 			updateImagePreview();
 		}
 		const role = new URLSearchParams(window.location.search).get('role');
@@ -347,7 +353,7 @@
 				document.getElementById('article-image-fit').value = story.imageFit || 'contain';
 				document.getElementById('image-preview-image').src = story.image || '';
 				document.getElementById('image-preview').classList.toggle('has-image', Boolean(story.image));
-				restoreImagePosition(story.imagePosition);
+				restoreImagePosition(story.imagePosition, story.imageZoom);
 				document.getElementById('article-image').required = false;
 				document.getElementById('article-submit').textContent = 'Save story changes';
 				document.getElementById('upload-panel').scrollIntoView({ behavior: 'smooth' });
@@ -374,6 +380,7 @@
 						author: document.getElementById('article-author').value,
 						imageFit: document.getElementById('article-image-fit').value,
 						imagePosition: `${document.getElementById('article-image-x').value}% ${document.getElementById('article-image-y').value}%`,
+						imageZoom: Number(document.getElementById('article-image-zoom').value) / 100,
 						date: existingStory?.date || new Date().toISOString(),
 					}, imageFile, existingStory?.id, existingStory?.image);
 					if (editingIndex === null) stories.push(remoteStory);
@@ -403,6 +410,7 @@
 					author: document.getElementById('article-author').value,
 					imageFit: document.getElementById('article-image-fit').value,
 					imagePosition: `${document.getElementById('article-image-x').value}% ${document.getElementById('article-image-y').value}%`,
+					imageZoom: Number(document.getElementById('article-image-zoom').value) / 100,
 					date: stories[editingIndex]?.date || new Date().toISOString(),
 				};
 				if (image) story.image = image;
@@ -435,6 +443,7 @@
 		document.getElementById('article-image-fit').addEventListener('input', updateImagePreview);
 		document.getElementById('article-image-x').addEventListener('input', updateImagePreview);
 		document.getElementById('article-image-y').addEventListener('input', updateImagePreview);
+		document.getElementById('article-image-zoom').addEventListener('input', updateImagePreview);
 		updateImagePreview();
 	</script>
 </body>
