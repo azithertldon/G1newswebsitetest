@@ -262,6 +262,12 @@
 
 		loadSiteSettings();
 
+		function formatStoryDate(value) {
+			if (!value) return 'Recently';
+			const date = value.seconds ? new Date(value.seconds * 1000) : new Date(value);
+			return Number.isNaN(date.getTime()) ? 'Recently' : new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+		}
+
 		function createArticleCard(article) {
 			const card = document.createElement('article');
 			card.className = 'article-card';
@@ -284,7 +290,7 @@
 			const authorElement = document.createElement('span');
 			authorElement.textContent = `By ${article.author}`;
 			const timeElement = document.createElement('span');
-			timeElement.textContent = article.date || 'Recently';
+			timeElement.textContent = formatStoryDate(article.date === 'Just now' ? article.createdAt : article.date || article.createdAt);
 			meta.append(authorElement, timeElement);
 			content.append(categoryElement, titleElement, summaryElement, meta);
 			card.append(imageElement, content);
@@ -300,24 +306,31 @@
 			if (window.newsFirebase.enabled) {
 				try {
 					stories = await window.newsFirebase.loadStories();
+					renderPublishedStories(stories);
+					window.newsFirebase.watchStories(renderPublishedStories);
 				} catch (error) {
 					console.error('Firebase stories could not be loaded.', error);
 				}
+				return;
 			}
-			if (!stories.length && !window.newsFirebase.enabled) {
-				try {
-					const response = await fetch('news.json', { cache: 'no-store' });
-					if (response.ok) stories = await response.json();
-				} catch (error) {
-					// Opening the HTML directly can block fetch, so keep local preview support.
-				}
+			try {
+				const response = await fetch('news.json', { cache: 'no-store' });
+				if (response.ok) stories = await response.json();
+			} catch (error) {
+				// Opening the HTML directly can block fetch, so keep local preview support.
+				stories = [];
 			}
 			const localStories = JSON.parse(localStorage.getItem('newsStories') || '[]');
-			const sharedIds = new Set(stories.map((story) => story.id));
-			stories = stories.concat(localStories.filter((story) => !sharedIds.has(story.id)));
+			stories = stories.concat(localStories);
+			renderPublishedStories(stories);
+		}
+
+		function renderPublishedStories(stories) {
 			publishedStories = stories.map((story) => ({ ...story, id: story.id || story.title }));
 			const articleGrid = document.getElementById('article-grid');
+			articleGrid.textContent = '';
 			publishedStories.slice().reverse().forEach((story) => articleGrid.append(createArticleCard(story)));
+			filterStories();
 		}
 
 		function showArticle(articleId) {
@@ -344,7 +357,7 @@
 			summary.textContent = story.summary;
 			const meta = document.createElement('p');
 			meta.className = 'article-meta';
-			meta.textContent = `By ${story.author} · ${story.date || 'Recently'}`;
+			meta.textContent = `By ${story.author} · ${formatStoryDate(story.date === 'Just now' ? story.createdAt : story.date || story.createdAt)}`;
 			const image = document.createElement('img');
 			image.src = story.image;
 			image.alt = story.title;

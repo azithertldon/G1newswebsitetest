@@ -21,6 +21,12 @@
 			const snapshot = await database.collection('stories').orderBy('createdAt', 'desc').get();
 			return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 		},
+		watchStories(onChange) {
+			if (!database) return () => {};
+			return database.collection('stories').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
+				onChange(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+			});
+		},
 		async saveStory(story, imageFile, existingId = null, existingImage = '') {
 			if (!database) return null;
 			const storyId = existingId || database.collection('stories').doc().id;

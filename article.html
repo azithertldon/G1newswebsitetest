@@ -54,6 +54,12 @@
 			return JSON.parse(localStorage.getItem('newsStories') || '[]');
 		}
 
+		function formatStoryDate(value) {
+			if (!value) return 'Recently';
+			const date = value.seconds ? new Date(value.seconds * 1000) : new Date(value);
+			return Number.isNaN(date.getTime()) ? 'Recently' : new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+		}
+
 		function renderArticle(story) {
 			const container = document.getElementById('article-container');
 			if (!story) {
@@ -70,7 +76,7 @@
 			summary.textContent = story.summary;
 			const meta = document.createElement('p');
 			meta.className = 'meta';
-			meta.textContent = `By ${story.author} · ${story.date || 'Recently'}`;
+			meta.textContent = `By ${story.author} · ${formatStoryDate(story.date === 'Just now' ? story.createdAt : story.date || story.createdAt)}`;
 			const image = document.createElement('img');
 			image.className = 'hero-image';
 			image.src = story.image;
