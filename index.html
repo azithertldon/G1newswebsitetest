@@ -202,7 +202,7 @@
 			<span><strong class="brand-name" id="site-title">G1 News Writing Website Test</strong><br /><span class="brand-tagline" id="site-tagline">News with a closer look</span></span>
 		</a>
 		<div class="header-actions">
-			<label class="search-box"><span class="sr-only">Search stories</span><span class="search-icon" aria-hidden="true"></span><input id="search-input" type="search" placeholder="Search stories..." /></label>
+			<label class="search-box"><span class="sr-only">Search stories</span><span class="search-icon" aria-hidden="true"></span><input id="search-input" type="search" aria-label="Search stories" /></label>
 			<button class="editor-button staff-only" id="editor-login-button" type="button">Staff login</button>
 		</div>
 	</header>
@@ -293,6 +293,7 @@
 			imageElement.src = article.image;
 			imageElement.alt = article.title;
 			imageElement.style.objectFit = article.imageFit || 'contain';
+			imageElement.style.objectPosition = article.imagePosition || '50% 50%';
 			imageElement.style.backgroundColor = article.imageFit === 'cover' ? 'transparent' : 'var(--paper)';
 			const content = document.createElement('div');
 			content.className = 'article-card-content';
@@ -380,6 +381,7 @@
 			image.src = story.image;
 			image.alt = story.title;
 			image.style.objectFit = story.imageFit || 'contain';
+			image.style.objectPosition = story.imagePosition || '50% 50%';
 			image.style.backgroundColor = story.imageFit === 'cover' ? 'transparent' : 'var(--paper)';
 			const body = document.createElement('div');
 			body.className = 'article-body';

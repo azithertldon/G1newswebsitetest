@@ -59,6 +59,15 @@
 		.editor-form input, .editor-form textarea, .editor-form select { width: 100%; padding: 11px; color: var(--ink); background: var(--white); border: 1px solid var(--line); border-radius: 2px; font: inherit; }
 		.editor-form textarea { min-height: 110px; resize: vertical; }
 		.editor-form input:focus, .editor-form textarea:focus, .editor-form select:focus { border-color: var(--red); outline: 2px solid rgba(179, 19, 27, 0.16); }
+		.image-customizer { display: grid; gap: 10px; padding: 14px; background: var(--paper); border: 1px solid var(--line); }
+		.image-preview { display: grid; min-height: 180px; overflow: hidden; background: #efe2a6; place-items: center; }
+		.image-preview img { display: none; width: 100%; height: 180px; object-fit: contain; }
+		.image-preview.has-image img { display: block; }
+		.image-preview-empty { color: var(--muted); font-size: 0.82rem; }
+		.image-preview.has-image .image-preview-empty { display: none; }
+		.range-row { display: grid; grid-template-columns: 1fr 54px; gap: 10px; align-items: center; }
+		.range-row input { width: 100%; padding: 0; accent-color: var(--red); }
+		.range-row output { color: var(--red-dark); font-size: 0.78rem; text-align: right; }
 		.submit-button { padding: 12px 16px; color: var(--white); background: var(--red); border: 0; border-radius: 2px; font-weight: 800; }
 		.submit-button:hover { background: var(--red-dark); }
 		.status { min-height: 24px; margin: 0; color: var(--red-dark); font-size: 0.85rem; font-weight: 700; }
@@ -122,7 +131,7 @@
 		</section>
 		<section class="editor-panel" id="upload-panel">
 			<h2>Upload a news story</h2>
-			<p class="editor-note">Write the complete coverage, then download the shared news file and commit it to GitHub so every device can see it.</p>
+			<p class="editor-note">Write the complete coverage and publish it for readers.</p>
 			<form class="editor-form" id="article-form">
 				<label>Headline <input id="article-title" type="text" placeholder="Your news headline" required /></label>
 				<label>Summary <textarea id="article-summary" placeholder="A short description of the story" required></textarea></label>
@@ -130,13 +139,16 @@
 				<label>Category <select id="article-category"><option value="politics">Politics</option><option value="technology">Technology</option><option value="culture">Culture</option><option value="science">Science</option><option value="campus">Campus life</option></select></label>
 				<label>Author <input id="article-author" type="text" placeholder="Your name" required /></label>
 				<label>Thumbnail image <input id="article-image" type="file" accept="image/*" /></label>
-				<label>Thumbnail display <select id="article-image-fit"><option value="contain">Show full image (no crop)</option><option value="cover">Fill card (crop edges)</option></select></label>
+				<div class="image-customizer">
+					<strong>Customize thumbnail</strong>
+					<div class="image-preview" id="image-preview"><span class="image-preview-empty">Choose an image to preview it here.</span><img id="image-preview-image" alt="Thumbnail preview" /></div>
+					<label>Image fitting <select id="article-image-fit"><option value="contain">Show full image (no crop)</option><option value="cover">Fill card (crop edges)</option></select></label>
+					<label>Horizontal focus <span class="range-row"><input id="article-image-x" type="range" min="0" max="100" value="50" /><output id="article-image-x-value">50%</output></span></label>
+					<label>Vertical focus <span class="range-row"><input id="article-image-y" type="range" min="0" max="100" value="50" /><output id="article-image-y-value">50%</output></span></label>
+				</div>
 				<button class="submit-button" id="article-submit" type="submit">Publish story</button>
 				<p class="status" id="article-status" role="status"></p>
 			</form>
-			<button class="submit-button" id="download-news-button" type="button">Download shared news file</button>
-			<p class="editor-note">After downloading, replace the repository's <strong>news.json</strong> with this file and commit the change on GitHub.</p>
-			<p class="status" id="download-status" role="status"></p>
 		</section>
 	</main>
 	<div class="publish-success" id="publish-success" role="dialog" aria-modal="true" aria-labelledby="publish-success-title">
@@ -183,6 +195,24 @@
 			editor: { username: 'editor', password: 'editor123', role: 'editor' },
 		};
 		let editingIndex = null;
+
+		function updateImagePreview() {
+			const fit = document.getElementById('article-image-fit').value;
+			const x = document.getElementById('article-image-x').value;
+			const y = document.getElementById('article-image-y').value;
+			const preview = document.getElementById('image-preview-image');
+			preview.style.objectFit = fit;
+			preview.style.objectPosition = `${x}% ${y}%`;
+			document.getElementById('article-image-x-value').textContent = `${x}%`;
+			document.getElementById('article-image-y-value').textContent = `${y}%`;
+		}
+
+		function restoreImagePosition(value) {
+			const matches = value?.match(/(\d+)\s*%\s+(\d+)\s*%/);
+			document.getElementById('article-image-x').value = matches ? matches[1] : 50;
+			document.getElementById('article-image-y').value = matches ? matches[2] : 50;
+			updateImagePreview();
+		}
 		const role = new URLSearchParams(window.location.search).get('role');
 		if (!roleSettings[role]) window.location.href = 'index.html';
 		const settings = roleSettings[role];
@@ -315,6 +345,9 @@
 				document.getElementById('article-category').value = story.category;
 				document.getElementById('article-author').value = story.author;
 				document.getElementById('article-image-fit').value = story.imageFit || 'contain';
+				document.getElementById('image-preview-image').src = story.image || '';
+				document.getElementById('image-preview').classList.toggle('has-image', Boolean(story.image));
+				restoreImagePosition(story.imagePosition);
 				document.getElementById('article-image').required = false;
 				document.getElementById('article-submit').textContent = 'Save story changes';
 				document.getElementById('upload-panel').scrollIntoView({ behavior: 'smooth' });
@@ -340,6 +373,7 @@
 						category: document.getElementById('article-category').value,
 						author: document.getElementById('article-author').value,
 						imageFit: document.getElementById('article-image-fit').value,
+						imagePosition: `${document.getElementById('article-image-x').value}% ${document.getElementById('article-image-y').value}%`,
 						date: existingStory?.date || new Date().toISOString(),
 					}, imageFile, existingStory?.id, existingStory?.image);
 					if (editingIndex === null) stories.push(remoteStory);
@@ -368,6 +402,7 @@
 					category: document.getElementById('article-category').value,
 					author: document.getElementById('article-author').value,
 					imageFit: document.getElementById('article-image-fit').value,
+					imagePosition: `${document.getElementById('article-image-x').value}% ${document.getElementById('article-image-y').value}%`,
 					date: stories[editingIndex]?.date || new Date().toISOString(),
 				};
 				if (image) story.image = image;
@@ -390,15 +425,17 @@
 				saveStory(stories[editingIndex].image);
 			}
 		});
-		document.getElementById('download-news-button').addEventListener('click', async () => {
-			const file = new Blob([JSON.stringify(await getStories(), null, 2)], { type: 'application/json' });
-			const link = document.createElement('a');
-			link.href = URL.createObjectURL(file);
-			link.download = 'news.json';
-			link.click();
-			URL.revokeObjectURL(link.href);
-			document.getElementById('download-status').textContent = 'Downloaded news.json. Commit it to GitHub to publish the stories.';
+		document.getElementById('article-image').addEventListener('change', (event) => {
+			const imageFile = event.target.files[0];
+			if (!imageFile) return;
+			document.getElementById('image-preview-image').src = URL.createObjectURL(imageFile);
+			document.getElementById('image-preview').classList.add('has-image');
+			updateImagePreview();
 		});
+		document.getElementById('article-image-fit').addEventListener('input', updateImagePreview);
+		document.getElementById('article-image-x').addEventListener('input', updateImagePreview);
+		document.getElementById('article-image-y').addEventListener('input', updateImagePreview);
+		updateImagePreview();
 	</script>
 </body>
 </html>
