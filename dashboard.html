@@ -69,6 +69,7 @@
 		.range-row { display: grid; grid-template-columns: 1fr 54px; gap: 10px; align-items: center; }
 		.range-row input { width: 100%; padding: 0; accent-color: var(--red); }
 		.range-row output { color: var(--red-dark); font-size: 0.78rem; text-align: right; }
+		.shape-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 		.submit-button { padding: 12px 16px; color: var(--white); background: var(--red); border: 0; border-radius: 2px; font-weight: 800; }
 		.submit-button:hover { background: var(--red-dark); }
 		.status { min-height: 24px; margin: 0; color: var(--red-dark); font-size: 0.85rem; font-weight: 700; }
@@ -143,6 +144,7 @@
 				<div class="image-customizer">
 					<strong>Customize thumbnail</strong>
 					<div class="image-preview" id="image-preview"><span class="image-preview-empty">Choose an image to preview it here.</span><img id="image-preview-image" alt="Thumbnail preview" /></div>
+					<div class="shape-fields"><label>Shape width <input id="article-image-width" type="number" min="1" max="200" value="16" required /></label><label>Shape height <input id="article-image-height" type="number" min="1" max="200" value="9" required /></label></div>
 					<label>Image fitting <select id="article-image-fit"><option value="contain">Show full image (no crop)</option><option value="cover">Fill card (crop edges)</option></select></label>
 					<label>Horizontal focus <span class="range-row"><input id="article-image-x" type="range" min="0" max="100" value="50" /><output id="article-image-x-value">50%</output></span></label>
 					<label>Vertical focus <span class="range-row"><input id="article-image-y" type="range" min="0" max="100" value="50" /><output id="article-image-y-value">50%</output></span></label>
@@ -200,12 +202,15 @@
 
 		function updateImagePreview() {
 			const fit = document.getElementById('article-image-fit').value;
+			const width = Math.max(1, Number(document.getElementById('article-image-width').value) || 16);
+			const height = Math.max(1, Number(document.getElementById('article-image-height').value) || 9);
 			const x = document.getElementById('article-image-x').value;
 			const y = document.getElementById('article-image-y').value;
 			const zoom = document.getElementById('article-image-zoom').value;
 			const preview = document.getElementById('image-preview-image');
 			preview.style.objectFit = fit;
 			preview.style.objectPosition = `${x}% ${y}%`;
+			preview.style.aspectRatio = `${width} / ${height}`;
 			preview.style.transform = `scale(${zoom / 100})`;
 			preview.style.transformOrigin = `${x}% ${y}%`;
 			document.getElementById('article-image-x-value').textContent = `${x}%`;
@@ -218,6 +223,13 @@
 			document.getElementById('article-image-x').value = matches ? matches[1] : 50;
 			document.getElementById('article-image-y').value = matches ? matches[2] : 50;
 			document.getElementById('article-image-zoom').value = Math.round((zoom || 1) * 100);
+			updateImagePreview();
+		}
+
+		function restoreImageShape(value) {
+			const matches = value?.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
+			document.getElementById('article-image-width').value = matches ? matches[1] : 16;
+			document.getElementById('article-image-height').value = matches ? matches[2] : 9;
 			updateImagePreview();
 		}
 		const role = new URLSearchParams(window.location.search).get('role');
@@ -359,6 +371,7 @@
 				document.getElementById('article-category').value = story.category;
 				document.getElementById('article-author').value = story.author;
 				document.getElementById('article-image-fit').value = story.imageFit || 'contain';
+				restoreImageShape(story.imageAspectRatio);
 				document.getElementById('image-preview-image').src = story.image || '';
 				document.getElementById('image-preview').classList.toggle('has-image', Boolean(story.image));
 				restoreImagePosition(story.imagePosition, story.imageZoom);
@@ -387,6 +400,7 @@
 						category: document.getElementById('article-category').value,
 						author: document.getElementById('article-author').value,
 						imageFit: document.getElementById('article-image-fit').value,
+						imageAspectRatio: `${document.getElementById('article-image-width').value}/${document.getElementById('article-image-height').value}`,
 						imagePosition: `${document.getElementById('article-image-x').value}% ${document.getElementById('article-image-y').value}%`,
 						imageZoom: Number(document.getElementById('article-image-zoom').value) / 100,
 						date: existingStory?.date || new Date().toISOString(),
@@ -417,6 +431,7 @@
 					category: document.getElementById('article-category').value,
 					author: document.getElementById('article-author').value,
 					imageFit: document.getElementById('article-image-fit').value,
+					imageAspectRatio: `${document.getElementById('article-image-width').value}/${document.getElementById('article-image-height').value}`,
 					imagePosition: `${document.getElementById('article-image-x').value}% ${document.getElementById('article-image-y').value}%`,
 					imageZoom: Number(document.getElementById('article-image-zoom').value) / 100,
 					date: stories[editingIndex]?.date || new Date().toISOString(),
@@ -449,6 +464,8 @@
 			updateImagePreview();
 		});
 		document.getElementById('article-image-fit').addEventListener('input', updateImagePreview);
+		document.getElementById('article-image-width').addEventListener('input', updateImagePreview);
+		document.getElementById('article-image-height').addEventListener('input', updateImagePreview);
 		document.getElementById('article-image-x').addEventListener('input', updateImagePreview);
 		document.getElementById('article-image-y').addEventListener('input', updateImagePreview);
 		document.getElementById('article-image-zoom').addEventListener('input', updateImagePreview);
