@@ -87,6 +87,8 @@
 		.editor-button { padding: 10px 14px; color: var(--teal-dark); background: transparent; border: 2px solid var(--teal); border-radius: 4px; font-weight: 700; transition: color 160ms ease, background 160ms ease, transform 160ms ease; }
 		.editor-button:hover { color: var(--white); background: var(--teal); }
 		.editor-button:active { transform: translateY(2px); }
+		.staff-only { display: none; }
+		.staff-only.visible { display: inline-block; }
 		.category-nav {
 			display: flex;
 			gap: 26px;
@@ -198,6 +200,7 @@
 		</a>
 		<div class="header-actions">
 			<label class="search-box"><span class="sr-only">Search stories</span><input id="search-input" type="search" placeholder="Search stories..." /></label>
+			<button class="editor-button staff-only" id="editor-login-button" type="button">Staff login</button>
 		</div>
 	</header>
 	<nav class="category-nav" aria-label="News categories">
@@ -208,6 +211,21 @@
 		<button data-category="science">Science</button>
 		<button data-category="campus">Campus life</button>
 	</nav>
+	<div class="modal-backdrop" id="editor-modal" role="dialog" aria-modal="true" aria-labelledby="editor-modal-title">
+		<div class="editor-modal">
+			<button class="close-modal" id="close-editor-modal" type="button" aria-label="Close editor">×</button>
+			<div id="login-view">
+				<h2 id="editor-modal-title">Staff login</h2>
+				<p class="editor-note">Demo only: choose the account that matches your role.</p>
+				<form class="editor-form" id="login-form">
+					<label>Username <input id="editor-username" type="text" autocomplete="username" required /></label>
+					<label>Password <input id="editor-password" type="password" autocomplete="current-password" required /></label>
+					<button class="editor-submit" type="submit">Continue to dashboard</button>
+					<p class="editor-status" id="login-status" role="status"></p>
+				</form>
+			</div>
+		</div>
+	</div>
 	<main id="top">
 		<section class="news-section" id="news-section" aria-labelledby="latest-heading">
 			<div class="section-label">News desk</div>
@@ -229,8 +247,15 @@
 		const categoryButtons = document.querySelectorAll('.category-nav [data-category]');
 		const searchInput = document.getElementById('search-input');
 		const emptyState = document.getElementById('empty-state');
+		const editorModal = document.getElementById('editor-modal');
 		let selectedCategory = 'all';
 		let publishedStories = [];
+		const defaultAccounts = {
+			administrator: { username: 'administrator', password: 'godmode123', role: 'administrator' },
+			'chief-director': { username: 'director', password: 'director123', role: 'chief-director' },
+			editor: { username: 'editor', password: 'editor123', role: 'editor' },
+		};
+		if (new URLSearchParams(window.location.search).get('staff') === '1') document.getElementById('editor-login-button').classList.add('visible');
 
 		function loadSiteSettings() {
 			const settings = JSON.parse(localStorage.getItem('siteSettings') || '{}');
@@ -397,6 +422,23 @@
 			showArticle(hash ? decodeURIComponent(hash[1]) : null);
 		});
 		searchInput.addEventListener('input', filterStories);
+		document.getElementById('editor-login-button').addEventListener('click', () => {
+			editorModal.classList.add('open');
+			document.getElementById('editor-username').focus();
+		});
+		document.getElementById('close-editor-modal').addEventListener('click', () => editorModal.classList.remove('open'));
+		editorModal.addEventListener('click', (event) => {
+			if (event.target === editorModal) editorModal.classList.remove('open');
+		});
+		document.getElementById('login-form').addEventListener('submit', (event) => {
+			event.preventDefault();
+			const username = document.getElementById('editor-username').value;
+			const password = document.getElementById('editor-password').value;
+			const accounts = JSON.parse(localStorage.getItem('staffAccounts') || JSON.stringify(defaultAccounts));
+			const account = Object.values(accounts).find((item) => item.username === username && item.password === password);
+			if (account) window.location.href = `dashboard.html?role=${account.role}`;
+			else document.getElementById('login-status').textContent = 'Username or password is incorrect.';
+		});
 	</script>
 </body>
 </html>
