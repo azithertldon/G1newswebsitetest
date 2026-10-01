@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Article | G1 News Writing Website Test</title>
+	<style>
+		:root { --ink: #171717; --muted: #5c5547; --paper: #fff8dc; --white: #fffdf2; --line: #e4c84a; --red: #b3131b; --yellow: #f2c230; }
+		* { box-sizing: border-box; }
+		body { margin: 0; color: var(--ink); background: var(--paper); font-family: Arial, sans-serif; line-height: 1.7; }
+		a { color: inherit; text-decoration: none; }
+		.topbar { padding: 10px 5vw; color: #fff3a6; background: var(--ink); font-size: 0.78rem; letter-spacing: 0.08em; text-align: center; text-transform: uppercase; }
+		header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 5vw; border-bottom: 1px solid var(--line); }
+		.brand { font-size: 1.3rem; font-weight: 800; }
+		.brand span, .back-link { color: var(--red); }
+		.back-link { font-weight: 700; }
+		main { width: min(820px, 90vw); margin: 0 auto; padding: 60px 0 90px; }
+		.article-category { color: var(--red); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+		h1 { margin: 14px 0; font-family: Georgia, serif; font-size: clamp(2.4rem, 6vw, 4.8rem); line-height: 1.08; }
+		.summary { color: var(--muted); font-size: 1.2rem; }
+		.meta { color: var(--muted); font-size: 0.85rem; }
+		.hero-image { width: 100%; max-height: 470px; margin: 34px 0; object-fit: cover; }
+		.article-body { max-width: 700px; font-size: 1.08rem; }
+		.article-body p { margin: 0 0 22px; }
+		.not-found { padding: 40px; background: var(--white); border: 1px solid var(--line); }
+		footer { padding: 30px 5vw; color: #fff3a6; background: var(--ink); text-align: center; font-size: 0.85rem; }
+		@media (max-width: 600px) { header { align-items: flex-start; flex-direction: column; } }
+	</style>
+</head>
+<body>
+	<div class="topbar">G1 News Writing Website Test</div>
+	<header><a class="brand" href="index.html"><span>G1</span> News Writing Website Test</a><a class="back-link" href="index.html">← Back to latest stories</a></header>
+	<main id="article-container"></main>
+	<footer>© 2026 G1 News Writing Website Test</footer>
+	<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+	<script src="firebase-config.js"></script>
+	<script src="firebase-shared.js"></script>
+	<script>
+		async function getStories() {
+			if (window.newsFirebase.enabled) {
+				try {
+					return await window.newsFirebase.loadStories();
+				} catch (error) {
+					console.error('Firebase stories could not be loaded.', error);
+				}
+			}
+			try {
+				const response = await fetch('news.json', { cache: 'no-store' });
+				if (response.ok) return await response.json();
+			} catch (error) {
+				// Use the local preview when the page is opened directly from a computer.
+			}
+			return JSON.parse(localStorage.getItem('newsStories') || '[]');
+		}
+
+		function renderArticle(story) {
+			const container = document.getElementById('article-container');
+			if (!story) {
+				container.innerHTML = '<div class="not-found"><h1>Story not found</h1><p>This article may not have been published yet.</p></div>';
+				return;
+			}
+			const category = document.createElement('div');
+			category.className = 'article-category';
+			category.textContent = story.category;
+			const title = document.createElement('h1');
+			title.textContent = story.title;
+			const summary = document.createElement('p');
+			summary.className = 'summary';
+			summary.textContent = story.summary;
+			const meta = document.createElement('p');
+			meta.className = 'meta';
+			meta.textContent = `By ${story.author} · ${story.date || 'Recently'}`;
+			const image = document.createElement('img');
+			image.className = 'hero-image';
+			image.src = story.image;
+			image.alt = story.title;
+			const body = document.createElement('div');
+			body.className = 'article-body';
+			(story.body || story.summary).split(/\n\s*\n/).forEach((paragraph) => {
+				const element = document.createElement('p');
+				element.textContent = paragraph;
+				body.append(element);
+			});
+			container.append(category, title, summary, meta, image, body);
+		}
+
+		const requestedId = new URLSearchParams(window.location.search).get('id');
+		getStories().then((stories) => renderArticle(stories.find((story) => (story.id || story.title) === requestedId)));
+	</script>
+</body>
+</html>

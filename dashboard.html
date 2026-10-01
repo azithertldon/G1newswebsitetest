@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Staff dashboard | G1 News Writing Website Test</title>
+	<style>
+		:root {
+			--ink: #171717;
+			--muted: #5c5547;
+			--paper: #fff8dc;
+			--white: #fffdf2;
+			--line: #e4c84a;
+			--red: #b3131b;
+			--red-dark: #8f0c13;
+			--yellow: #f2c230;
+		}
+		* { box-sizing: border-box; }
+		body { margin: 0; color: var(--ink); background: var(--paper); font-family: Arial, sans-serif; line-height: 1.6; }
+		a { color: inherit; text-decoration: none; }
+		.topbar { padding: 10px 5vw; color: #fff3a6; background: var(--ink); font-size: 0.78rem; letter-spacing: 0.08em; text-align: center; text-transform: uppercase; }
+		header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 5vw; background: var(--paper); border-bottom: 1px solid var(--line); }
+		.brand { font-size: 1.3rem; font-weight: 800; }
+		.brand span { color: var(--red); }
+		.back-link { color: var(--red); font-weight: 700; }
+		main { width: min(1040px, 90vw); margin: 0 auto; padding: 50px 0 80px; }
+		.kicker { color: var(--red); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+		h1, h2 { margin: 0; line-height: 1.1; }
+		h1 { margin-top: 10px; font-size: clamp(2.2rem, 5vw, 4rem); }
+		h2 { font-size: 1.5rem; }
+		.intro { max-width: 620px; color: var(--muted); }
+		.role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 34px 0; }
+		.role-card, .editor-panel { padding: 24px; background: var(--white); border: 1px solid var(--line); }
+		.role-card.active { border: 3px solid var(--red); }
+		.role-card h2 { margin-bottom: 8px; }
+		.role-card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+		.role-badge { display: inline-block; margin-bottom: 14px; padding: 5px 9px; color: var(--ink); background: var(--yellow); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+		.notice { margin: 24px 0; padding: 16px 18px; color: var(--ink); background: #fff0a6; border-left: 4px solid var(--red); }
+		.editor-panel { max-width: 720px; }
+		.management-panel { max-width: 900px; margin-bottom: 24px; padding: 24px; background: var(--white); border: 1px solid var(--line); }
+		.management-panel h2 { margin-bottom: 8px; }
+		.management-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+		.account-group { padding: 16px; background: var(--paper); border: 1px solid var(--line); }
+		.account-group h3 { margin: 0 0 12px; font-size: 1rem; }
+		.story-list { display: grid; gap: 12px; margin-top: 20px; }
+		.story-row { display: grid; grid-template-columns: 86px 1fr auto; gap: 14px; align-items: center; padding: 12px; background: var(--paper); border: 1px solid var(--line); }
+		.story-row img { width: 86px; height: 64px; object-fit: cover; }
+		.story-row h3 { margin: 0; font-size: 1rem; }
+		.story-row p { margin: 4px 0 0; color: var(--muted); font-size: 0.8rem; }
+		.story-actions { display: flex; gap: 8px; }
+		.small-button { padding: 8px 10px; color: var(--ink); background: var(--yellow); border: 1px solid var(--line); border-radius: 2px; font-weight: 700; }
+		.small-button.delete { color: var(--white); background: var(--red); border-color: var(--red); }
+		.small-button:hover { filter: brightness(0.94); }
+		.no-stories { color: var(--muted); }
+		.editor-panel h2 { margin-bottom: 8px; }
+		.editor-note { margin-top: 0; color: var(--muted); }
+		.editor-form { display: grid; gap: 14px; margin-top: 22px; }
+		.editor-form label { display: grid; gap: 5px; font-size: 0.82rem; font-weight: 700; }
+		.editor-form input, .editor-form textarea, .editor-form select { width: 100%; padding: 11px; color: var(--ink); background: var(--white); border: 1px solid var(--line); border-radius: 2px; font: inherit; }
+		.editor-form textarea { min-height: 110px; resize: vertical; }
+		.editor-form input:focus, .editor-form textarea:focus, .editor-form select:focus { border-color: var(--red); outline: 2px solid rgba(179, 19, 27, 0.16); }
+		.submit-button { padding: 12px 16px; color: var(--white); background: var(--red); border: 0; border-radius: 2px; font-weight: 800; }
+		.submit-button:hover { background: var(--red-dark); }
+		.status { min-height: 24px; margin: 0; color: var(--red-dark); font-size: 0.85rem; font-weight: 700; }
+		.hidden { display: none; }
+		@media (max-width: 700px) { header { align-items: flex-start; flex-direction: column; } .role-grid, .management-grid { grid-template-columns: 1fr; } .story-row { grid-template-columns: 70px 1fr; } .story-row img { width: 70px; height: 56px; } .story-actions { grid-column: 1 / -1; } }
+	</style>
+</head>
+<body>
+	<div class="topbar">Staff area · Demo access only</div>
+	<header>
+		<a class="brand" href="index.html"><span>G1</span> News Writing Website Test</a>
+		<a class="back-link" href="index.html">← Back to website</a>
+	</header>
+	<main>
+		<span class="kicker">Internal dashboard</span>
+		<h1 id="dashboard-title">Staff dashboard</h1>
+		<p class="intro" id="dashboard-intro"></p>
+		<div class="role-grid">
+			<section class="role-card" data-card="administrator"><span class="role-badge">Administrator</span><h2>God mode</h2><p>Full website control, staff management, publishing, and settings.</p></section>
+			<section class="role-card" data-card="chief-director"><span class="role-badge">Chief director</span><h2>Director access</h2><p>Review stories, guide the newsroom, and manage publishing decisions.</p></section>
+			<section class="role-card" data-card="editor"><span class="role-badge">Editor</span><h2>Upload news</h2><p>Write stories and upload local thumbnail images.</p></section>
+		</div>
+		<div class="notice" id="role-notice"></div>
+		<section class="management-panel hidden" id="admin-panel">
+			<h2>Administrator controls</h2>
+			<p class="editor-note">Change the public website and manage the demo staff logins without editing code.</p>
+			<div class="management-grid">
+				<form class="editor-form" id="settings-form">
+					<h3>Website appearance</h3>
+					<label>Website title <input id="setting-title" type="text" required /></label>
+					<label>Tagline <input id="setting-tagline" type="text" required /></label>
+					<label>Top message <input id="setting-topbar" type="text" required /></label>
+					<label>Primary red <input id="setting-primary-color" type="color" required /></label>
+					<label>Accent yellow <input id="setting-accent-color" type="color" required /></label>
+					<button class="submit-button" type="submit">Save website changes</button>
+					<p class="status" id="settings-status" role="status"></p>
+				</form>
+				<form class="editor-form" id="accounts-form">
+					<h3>Manage login information</h3>
+					<div class="account-group"><h3>Administrator</h3><label>Username <input id="account-administrator-username" type="text" required /></label><label>Password <input id="account-administrator-password" type="text" required /></label></div>
+					<div class="account-group"><h3>Chief director</h3><label>Username <input id="account-director-username" type="text" required /></label><label>Password <input id="account-director-password" type="text" required /></label></div>
+					<div class="account-group"><h3>Editor</h3><label>Username <input id="account-editor-username" type="text" required /></label><label>Password <input id="account-editor-password" type="text" required /></label></div>
+					<button class="submit-button" type="submit">Save login information</button>
+					<p class="status" id="accounts-status" role="status"></p>
+				</form>
+			</div>
+		</section>
+		<section class="management-panel hidden" id="story-management">
+			<h2>Manage submitted news</h2>
+			<p class="editor-note">Edit or delete stories already saved by writers.</p>
+			<div class="story-list" id="story-list"></div>
+			<p class="status" id="manage-status" role="status"></p>
+		</section>
+		<section class="editor-panel" id="upload-panel">
+			<h2>Upload a news story</h2>
+			<p class="editor-note">Write the complete coverage, then download the shared news file and commit it to GitHub so every device can see it.</p>
+			<form class="editor-form" id="article-form">
+				<label>Headline <input id="article-title" type="text" placeholder="Your news headline" required /></label>
+				<label>Summary <textarea id="article-summary" placeholder="A short description of the story" required></textarea></label>
+				<label>Full coverage <textarea id="article-body" placeholder="Write the complete news story here" required></textarea></label>
+				<label>Category <select id="article-category"><option value="politics">Politics</option><option value="technology">Technology</option><option value="culture">Culture</option><option value="science">Science</option><option value="campus">Campus life</option></select></label>
+				<label>Author <input id="article-author" type="text" placeholder="Your name" required /></label>
+				<label>Thumbnail image <input id="article-image" type="file" accept="image/*" /></label>
+				<button class="submit-button" id="article-submit" type="submit">Publish story</button>
+				<p class="status" id="article-status" role="status"></p>
+			</form>
+			<button class="submit-button" id="download-news-button" type="button">Download shared news file</button>
+			<p class="editor-note">After downloading, replace the repository's <strong>news.json</strong> with this file and commit the change on GitHub.</p>
+			<p class="status" id="download-status" role="status"></p>
+		</section>
+	</main>
+	<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+	<script src="firebase-config.js"></script>
+	<script src="firebase-shared.js"></script>
+	<script>
+		const roleSettings = {
+			administrator: {
+				title: 'Administrator dashboard',
+				intro: 'You have full control of this demo newsroom.',
+				notice: 'Administrator access: all newsroom areas are available in this demo.',
+			},
+			'chief-director': {
+				title: 'Chief director dashboard',
+				intro: 'You can oversee the newsroom and manage publishing decisions.',
+				notice: 'Chief director access: review and publishing controls are available in this demo.',
+			},
+			editor: {
+				title: 'Editor dashboard',
+				intro: 'Use this workspace to write and upload news stories.',
+				notice: 'Editor access: you can upload news stories and thumbnails only.',
+			},
+		};
+		const defaultSettings = {
+			title: 'G1 News Writing Website Test',
+			tagline: 'News with a closer look',
+			topbar: 'Independent reporting for curious minds · Thursday, October 1, 2026',
+			primaryColor: '#b3131b',
+			accentColor: '#f2c230',
+		};
+		const defaultAccounts = {
+			administrator: { username: 'administrator', password: 'godmode123', role: 'administrator' },
+			'chief-director': { username: 'director', password: 'director123', role: 'chief-director' },
+			editor: { username: 'editor', password: 'editor123', role: 'editor' },
+		};
+		let editingIndex = null;
+		const role = new URLSearchParams(window.location.search).get('role');
+		if (!roleSettings[role]) window.location.href = 'index.html';
+		const settings = roleSettings[role];
+		document.getElementById('dashboard-title').textContent = settings.title;
+		document.getElementById('dashboard-intro').textContent = settings.intro;
+		document.getElementById('role-notice').textContent = settings.notice;
+		document.querySelector(`[data-card="${role}"]`).classList.add('active');
+		if (role === 'administrator') document.getElementById('admin-panel').classList.remove('hidden');
+		if (role === 'administrator' || role === 'chief-director') document.getElementById('story-management').classList.remove('hidden');
+
+		if (role === 'administrator') {
+			const savedSettings = { ...defaultSettings, ...JSON.parse(localStorage.getItem('siteSettings') || '{}') };
+			document.getElementById('setting-title').value = savedSettings.title;
+			document.getElementById('setting-tagline').value = savedSettings.tagline;
+			document.getElementById('setting-topbar').value = savedSettings.topbar;
+			document.getElementById('setting-primary-color').value = savedSettings.primaryColor;
+			document.getElementById('setting-accent-color').value = savedSettings.accentColor;
+
+			const savedAccounts = { ...defaultAccounts, ...JSON.parse(localStorage.getItem('staffAccounts') || '{}') };
+			['administrator', 'chief-director', 'editor'].forEach((accountRole) => {
+				const inputRole = accountRole === 'chief-director' ? 'director' : accountRole;
+				document.getElementById(`account-${inputRole}-username`).value = savedAccounts[accountRole].username;
+				document.getElementById(`account-${inputRole}-password`).value = savedAccounts[accountRole].password;
+			});
+		}
+
+		function getStories() {
+			return JSON.parse(localStorage.getItem('newsStories') || '[]');
+		}
+
+		function makeStoryId(title) {
+			return `${title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now()}`;
+		}
+
+		function renderStoryManager() {
+			const storyList = document.getElementById('story-list');
+			storyList.textContent = '';
+			const stories = getStories();
+			if (!stories.length) {
+				const empty = document.createElement('p');
+				empty.className = 'no-stories';
+				empty.textContent = 'No submitted news yet.';
+				storyList.append(empty);
+				return;
+			}
+			stories.forEach((story, index) => {
+				const row = document.createElement('article');
+				row.className = 'story-row';
+				const image = document.createElement('img');
+				image.src = story.image;
+				image.alt = story.title;
+				const details = document.createElement('div');
+				const title = document.createElement('h3');
+				title.textContent = story.title;
+				const author = document.createElement('p');
+				author.textContent = `${story.category} · By ${story.author}`;
+				details.append(title, author);
+				const actions = document.createElement('div');
+				actions.className = 'story-actions';
+				const editButton = document.createElement('button');
+				editButton.className = 'small-button';
+				editButton.type = 'button';
+				editButton.dataset.action = 'edit';
+				editButton.dataset.index = index;
+				editButton.textContent = 'Edit';
+				const deleteButton = document.createElement('button');
+				deleteButton.className = 'small-button delete';
+				deleteButton.type = 'button';
+				deleteButton.dataset.action = 'delete';
+				deleteButton.dataset.index = index;
+				deleteButton.textContent = 'Delete';
+				actions.append(editButton, deleteButton);
+				row.append(image, details, actions);
+				storyList.append(row);
+			});
+		}
+
+		if (role === 'administrator' || role === 'chief-director') renderStoryManager();
+
+		document.getElementById('settings-form').addEventListener('submit', (event) => {
+			event.preventDefault();
+			localStorage.setItem('siteSettings', JSON.stringify({
+				title: document.getElementById('setting-title').value,
+				tagline: document.getElementById('setting-tagline').value,
+				topbar: document.getElementById('setting-topbar').value,
+				primaryColor: document.getElementById('setting-primary-color').value,
+				accentColor: document.getElementById('setting-accent-color').value,
+			}));
+			document.getElementById('settings-status').textContent = 'Website changes saved. Refresh the homepage to see them.';
+		});
+
+		document.getElementById('accounts-form').addEventListener('submit', (event) => {
+			event.preventDefault();
+			const accounts = {
+				administrator: { username: document.getElementById('account-administrator-username').value, password: document.getElementById('account-administrator-password').value, role: 'administrator' },
+				'chief-director': { username: document.getElementById('account-director-username').value, password: document.getElementById('account-director-password').value, role: 'chief-director' },
+				editor: { username: document.getElementById('account-editor-username').value, password: document.getElementById('account-editor-password').value, role: 'editor' },
+			};
+			localStorage.setItem('staffAccounts', JSON.stringify(accounts));
+			document.getElementById('accounts-status').textContent = 'Login information saved.';
+		});
+
+		document.getElementById('story-list').addEventListener('click', (event) => {
+			const button = event.target.closest('button');
+			if (!button) return;
+			const index = Number(button.dataset.index);
+			const stories = getStories();
+			if (button.dataset.action === 'delete') {
+				if (!window.confirm('Delete this submitted story?')) return;
+				stories.splice(index, 1);
+				localStorage.setItem('newsStories', JSON.stringify(stories));
+				document.getElementById('manage-status').textContent = 'Story deleted.';
+				renderStoryManager();
+			}
+			if (button.dataset.action === 'edit') {
+				const story = stories[index];
+				editingIndex = index;
+				document.getElementById('article-title').value = story.title;
+				document.getElementById('article-summary').value = story.summary;
+				document.getElementById('article-body').value = story.body || story.summary;
+				document.getElementById('article-category').value = story.category;
+				document.getElementById('article-author').value = story.author;
+				document.getElementById('article-image').required = false;
+				document.getElementById('article-submit').textContent = 'Save story changes';
+				document.getElementById('upload-panel').scrollIntoView({ behavior: 'smooth' });
+			}
+		});
+
+		document.getElementById('article-form').addEventListener('submit', async (event) => {
+			event.preventDefault();
+			const imageFile = document.getElementById('article-image').files[0];
+			const status = document.getElementById('article-status');
+			const stories = getStories();
+			if (editingIndex === null && (!imageFile || !imageFile.type.startsWith('image/'))) {
+				status.textContent = 'Please choose an image file.';
+				return;
+			}
+			if (window.newsFirebase.enabled) {
+				try {
+					const existingStory = editingIndex === null ? null : stories[editingIndex];
+					const remoteStory = await window.newsFirebase.saveStory({
+						title: document.getElementById('article-title').value,
+						summary: document.getElementById('article-summary').value,
+						body: document.getElementById('article-body').value,
+						category: document.getElementById('article-category').value,
+						author: document.getElementById('article-author').value,
+						date: 'Just now',
+					}, imageFile, existingStory?.id, existingStory?.image);
+					if (editingIndex === null) stories.push(remoteStory);
+					else stories[editingIndex] = remoteStory;
+					localStorage.setItem('newsStories', JSON.stringify(stories));
+					status.textContent = 'Story published for every device.';
+					editingIndex = null;
+					document.getElementById('article-image').required = true;
+					document.getElementById('article-submit').textContent = 'Publish story';
+					event.target.reset();
+					if (role === 'administrator' || role === 'chief-director') renderStoryManager();
+				} catch (error) {
+					status.textContent = 'Firebase could not save this story. Check Firestore and Storage setup.';
+					console.error(error);
+				}
+				return;
+			}
+			const saveStory = (image) => {
+				const story = {
+					id: editingIndex === null ? makeStoryId(document.getElementById('article-title').value) : stories[editingIndex].id,
+					title: document.getElementById('article-title').value,
+					summary: document.getElementById('article-summary').value,
+					body: document.getElementById('article-body').value,
+					category: document.getElementById('article-category').value,
+					author: document.getElementById('article-author').value,
+					date: 'Just now',
+				};
+				if (image) story.image = image;
+				if (editingIndex === null) stories.push(story);
+				else stories[editingIndex] = { ...stories[editingIndex], ...story };
+				localStorage.setItem('newsStories', JSON.stringify(stories));
+				status.textContent = editingIndex === null ? 'Story saved. Open the website to view it.' : 'Story changes saved.';
+				editingIndex = null;
+				document.getElementById('article-image').required = true;
+				document.getElementById('article-submit').textContent = 'Publish story';
+				event.target.reset();
+				if (role === 'administrator' || role === 'chief-director') renderStoryManager();
+			};
+			if (imageFile) {
+				const reader = new FileReader();
+				reader.onload = () => saveStory(reader.result);
+				reader.readAsDataURL(imageFile);
+			} else {
+				saveStory(stories[editingIndex].image);
+			}
+		});
+		document.getElementById('download-news-button').addEventListener('click', () => {
+			const file = new Blob([JSON.stringify(getStories(), null, 2)], { type: 'application/json' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(file);
+			link.download = 'news.json';
+			link.click();
+			URL.revokeObjectURL(link.href);
+			document.getElementById('download-status').textContent = 'Downloaded news.json. Commit it to GitHub to publish the stories.';
+		});
+	</script>
+</body>
+</html>
