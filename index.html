@@ -161,7 +161,7 @@
 		.article-view .article-meta { color: var(--muted); font-size: 0.85rem; }
 		.article-view img { max-height: 470px; margin: 30px 0; object-fit: cover; }
 		.article-body { max-width: 700px; font-size: 1.08rem; line-height: 1.8; }
-		.article-body p { margin: 0 0 22px; }
+		.article-body p { margin: 0 0 22px; white-space: pre-wrap; }
 		.back-to-stories { display: inline-block; margin-bottom: 28px; color: var(--teal); font-weight: 700; }
 		.modal-backdrop { display: none; position: fixed; z-index: 10; inset: 0; padding: 20px; background: rgba(24, 35, 43, 0.65); place-items: center; }
 		.modal-backdrop.open { display: grid; }
@@ -347,10 +347,18 @@
 		}
 
 		function renderPublishedStories(stories) {
-			publishedStories = stories.map((story) => ({ ...story, id: story.id || story.title }));
+			const getStoryTime = (story) => {
+				const value = story.createdAt || story.date;
+				if (value?.seconds) return value.seconds * 1000;
+				const time = Date.parse(value || '');
+				return Number.isNaN(time) ? 0 : time;
+			};
+			publishedStories = stories
+				.map((story) => ({ ...story, id: story.id || story.title }))
+				.sort((first, second) => getStoryTime(second) - getStoryTime(first));
 			const articleGrid = document.getElementById('article-grid');
 			articleGrid.textContent = '';
-			publishedStories.slice().reverse().forEach((story) => articleGrid.append(createArticleCard(story)));
+			publishedStories.forEach((story) => articleGrid.append(createArticleCard(story)));
 			filterStories();
 		}
 

@@ -58,6 +58,7 @@
 		.editor-form label { display: grid; gap: 5px; font-size: 0.82rem; font-weight: 700; }
 		.editor-form input, .editor-form textarea, .editor-form select { width: 100%; padding: 11px; color: var(--ink); background: var(--white); border: 1px solid var(--line); border-radius: 2px; font: inherit; }
 		.editor-form textarea { min-height: 110px; resize: vertical; }
+		#article-body { min-height: 220px; overflow-y: hidden; }
 		.editor-form input:focus, .editor-form textarea:focus, .editor-form select:focus { border-color: var(--red); outline: 2px solid rgba(179, 19, 27, 0.16); }
 		.image-customizer { display: grid; gap: 10px; padding: 14px; background: var(--paper); border: 1px solid var(--line); }
 		.image-preview { display: grid; min-height: 180px; overflow: hidden; background: #efe2a6; place-items: center; }
@@ -226,6 +227,12 @@
 		document.getElementById('dashboard-intro').textContent = settings.intro;
 		document.getElementById('role-notice').textContent = settings.notice;
 		document.querySelector(`[data-card="${role}"]`).classList.add('active');
+		const articleBodyInput = document.getElementById('article-body');
+		function resizeArticleBody() {
+			articleBodyInput.style.height = 'auto';
+			articleBodyInput.style.height = `${articleBodyInput.scrollHeight}px`;
+		}
+		articleBodyInput.addEventListener('input', resizeArticleBody);
 		const publishSuccess = document.getElementById('publish-success');
 		function showPublishSuccess() {
 			publishSuccess.classList.add('open');
@@ -348,6 +355,7 @@
 				document.getElementById('article-title').value = story.title;
 				document.getElementById('article-summary').value = story.summary;
 				document.getElementById('article-body').value = story.body || story.summary;
+				resizeArticleBody();
 				document.getElementById('article-category').value = story.category;
 				document.getElementById('article-author').value = story.author;
 				document.getElementById('article-image-fit').value = story.imageFit || 'contain';
