@@ -395,6 +395,7 @@
 				const textMatches = card.dataset.title.toLowerCase().includes(searchTerm);
 				const shouldShow = categoryMatches && textMatches;
 				card.style.display = shouldShow ? '' : 'none';
+				if (card.parentElement.classList.contains('article-link')) card.parentElement.style.display = shouldShow ? '' : 'none';
 				if (shouldShow) visibleCount += 1;
 			});
 			emptyState.style.display = visibleCount ? 'none' : 'block';
