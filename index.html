@@ -179,7 +179,7 @@
 	</style>
 </head>
 <body>
-	<div class="topbar" id="site-topbar">Independent reporting for curious minds · Thursday, October 1, 2026</div>
+	<div class="topbar" id="site-topbar">Independent reporting for curious minds</div>
 	<header class="site-header">
 		<a class="brand" href="#top" aria-label="G1 News Writing Website Test home">
 			<span class="brand-mark">G1</span>
@@ -252,7 +252,8 @@
 				document.getElementById('site-title').textContent = settings.title;
 			}
 			if (settings.tagline) document.getElementById('site-tagline').textContent = settings.tagline;
-			if (settings.topbar) document.getElementById('site-topbar').textContent = settings.topbar;
+			const cleanTopbar = settings.topbar?.replace(/\s*[·-]\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),.*$/i, '').trim();
+			if (cleanTopbar) document.getElementById('site-topbar').textContent = cleanTopbar;
 			if (settings.primaryColor) {
 				document.documentElement.style.setProperty('--coral', settings.primaryColor);
 				document.documentElement.style.setProperty('--teal', settings.primaryColor);
@@ -389,6 +390,10 @@
 
 		categoryButtons.forEach((button) => {
 			button.addEventListener('click', () => {
+				if (window.location.hash.startsWith('#article=')) {
+					window.history.replaceState(null, '', '#top');
+					showArticle(null);
+				}
 				categoryButtons.forEach((item) => item.classList.remove('active'));
 				button.classList.add('active');
 				selectedCategory = button.dataset.category;
