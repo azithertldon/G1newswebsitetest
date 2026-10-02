@@ -1014,25 +1014,109 @@ footer {
 	@media (max-width: 800px) {
 		.site-header {
 			position: static;
+			padding-top: 16px;
+			padding-bottom: 14px;
 		}
 		.category-nav {
 			top: 0;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			gap: 10px;
 		}
 		.article-grid {
 			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+		}
+		.card-image-frame {
+			height: 180px;
+		}
+		.article-card-content {
+			padding: 18px 16px 14px;
+		}
+		.article-card h3 {
+			font-size: 1.3rem;
+		}
+		.article-view {
+			padding: 24px 18px 30px;
 		}
 	}
 
 	@media (max-width: 520px) {
+		.topbar {
+			padding: 8px 12px;
+			font-size: 0.68rem;
+			letter-spacing: 0.1em;
+		}
+		.site-header {
+			padding-left: 14px;
+			padding-right: 14px;
+		}
+		.brand {
+			gap: 10px;
+		}
+		.brand-mark {
+			width: 42px;
+			height: 42px;
+			font-size: 1.15rem;
+		}
+		.brand-name {
+			font-size: 1rem;
+		}
+		.brand-tagline {
+			font-size: 0.62rem;
+		}
+		.header-actions {
+			width: 100%;
+			flex-direction: column;
+			align-items: stretch;
+		}
 		.search-box input {
 			width: 100%;
+			padding: 10px 14px;
+		}
+		.editor-button {
+			width: 100%;
+			padding: 10px 14px;
+		}
+		.category-nav {
+			padding-left: 12px;
+			padding-right: 12px;
+			gap: 8px;
+		}
+		.category-nav button {
+			padding: 6px 10px;
+			font-size: 0.72rem;
 		}
 		.article-grid {
 			grid-template-columns: 1fr;
+			gap: 12px;
 		}
-		.category-nav {
-			padding-left: 18px;
-			padding-right: 18px;
+		.article-card {
+			border-radius: 16px;
+		}
+		.card-image-frame {
+			height: 170px;
+		}
+		.article-card-content {
+			padding: 14px 12px 12px;
+		}
+		.article-card h3 {
+			font-size: 1.12rem;
+		}
+		.article-card p {
+			font-size: 0.8rem;
+		}
+		.story-meta {
+			gap: 8px;
+			font-size: 0.68rem;
+		}
+		.section-label {
+			margin-top: 26px;
+			font-size: 0.68rem;
+			letter-spacing: 0.12em;
+		}
+		.section-heading h2 {
+			font-size: 1.5rem;
 		}
 		.article-grid > .article-link.featured-story .article-card {
 			display: block;
@@ -1040,6 +1124,29 @@ footer {
 		.article-grid > .article-link.featured-story .card-image-frame {
 			height: 220px;
 			min-height: 220px;
+		}
+		.article-view {
+			padding: 20px 14px 24px;
+		}
+		.article-view h1 {
+			font-size: 2rem;
+		}
+		.article-summary {
+			font-size: 1rem;
+		}
+		.article-body {
+			font-size: 0.95rem;
+		}
+		.translation-controls {
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+		.translation-button {
+			padding: 9px 12px;
+			font-size: 0.82rem;
+		}
+		.back-to-stories {
+			font-size: 0.8rem;
 		}
 	}
 	</style>
