@@ -915,6 +915,9 @@ footer {
 
 	.article-card {
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
 		border: 1px solid rgba(234, 220, 169, 0.9);
 		border-top: 0;
 		border-left: 6px solid var(--gold);
@@ -926,6 +929,7 @@ footer {
 
 	.card-image-frame {
 		height: 230px;
+		flex-shrink: 0;
 		background: #f0e7d6;
 		border-bottom: 1px solid rgba(234, 220, 169, 0.8);
 		overflow: hidden;
@@ -952,15 +956,28 @@ footer {
 		font-size: clamp(1.5rem, 2vw, 1.9rem);
 		line-height: 1.06;
 		letter-spacing: -0.03em;
+		min-height: 3.2em;
 	}
 
 	.article-card-content {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
 		padding: 24px 24px 18px;
 	}
 
 	.article-card p {
 		font-size: 0.95rem;
 		line-height: 1.7;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		min-height: 5.1em;
+	}
+
+	.story-meta {
+		margin-top: auto;
 	}
 
 	.article-view {
