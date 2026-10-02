@@ -1142,11 +1142,13 @@ footer {
 			const imageElement = document.createElement('img');
 			imageElement.src = article.image;
 			imageElement.alt = article.title;
-			imageElement.style.objectFit = article.imageFit || 'contain';
+			imageElement.style.width = '100%';
+			imageElement.style.height = '100%';
+			imageElement.style.objectFit = 'cover';
 			imageElement.style.objectPosition = article.imagePosition || '50% 50%';
 			imageElement.style.transform = `scale(${article.imageZoom || 1})`;
 			imageElement.style.transformOrigin = article.imagePosition || '50% 50%';
-			imageElement.style.backgroundColor = article.imageFit === 'cover' ? 'transparent' : 'var(--paper)';
+			imageElement.style.backgroundColor = 'transparent';
 			const imageFrame = document.createElement('div');
 			imageFrame.className = 'card-image-frame';
 			imageFrame.append(imageElement);
